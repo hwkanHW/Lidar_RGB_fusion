@@ -56,9 +56,10 @@ int main(int argc, char** argv){
     }
     fused_cloud.height = fused_cloud.points.size();
     fused_cloud.width = 1;
+    //
     pcl::io::savePCDFile("/home/hwkan/lidar.pcd", fused_cloud);
-
     imwrite("/home/hwkan/image.png", color_img);
-
+    
+    //
     ros::waitForShutdown();
 }

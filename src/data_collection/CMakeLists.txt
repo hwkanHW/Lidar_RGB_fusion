@@ -33,6 +33,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(lidar_camera_collection src/lidar_camera_collection.cpp)
-target_link_libraries(lidar_camera_collection ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_executable(data_collection src/data_collection_v1.cpp)
+target_link_libraries(data_collection ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
+add_executable(data_collection_v2 src/data_collection_v2.cpp)
+target_link_libraries(data_collection_v2 ${catkin_LIBRARIES} ${OpenCV_LIBS})

@@ -2,12 +2,17 @@
     <!--change to your own image and lidar topic !!!!!!!!!!!-->
     <param name="image_topic" value="/camera/color/image_raw" />
     <param name="lidar_topic" value="/livox/lidar_3JEDK2S00176481" />
+
+    <!--save path-->
+    <param name="save_path" value="/home/hwkan/" />
     
     <!--set number of frame in dta collection-->
-    <param name="size_lidar" value="50" />
+    <param name="size_lidar" value="10" />
 
     <!--set image size to 640*480-->
     <include file="$(find realsense2_camera)/launch/rs_aligned_depth.launch" />
     <include file="$(find livox_ros_driver)/launch/livox_lidar.launch" />
+
+    <!--visulization-->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find data_collection)/rviz_cfg/lidar_camera_collection.rviz" />
 </launch>
