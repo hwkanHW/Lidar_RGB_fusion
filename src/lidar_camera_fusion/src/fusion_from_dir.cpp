@@ -10,93 +10,19 @@
 
 #include <opencv2/opencv.hpp>
 #include "lidar_rgb_fusion.h"
-
+#include "directory.h"
 #include <iostream>
 
 using namespace std;
+using namespace cv;
 
-class directory{
-public:
-    directory(string a);
-    directory(string a, vector<string> &b);
-    string getInputDir();
-    void setDir(string a);
-    vector<string> getFileNameSet();
-    void getFileName(string inputDir);
-
-private:
-    string inputDir;
-    vector<string> fileNameSet;
-};
-
-directory::directory(string a)
+Mat image_process(string image_path)
 {
-    this->inputDir = a;
-}
-
-directory::directory(string a, vector<string> &b)
-{
-    this->inputDir = a;
-    this->fileNameSet = b;
-}
-
-string directory::getInputDir()
-{
-    return this->inputDir;
-}
-
-void directory::setDir(string a)
-{
-    inputDir = a;
-}
-
-vector<string> directory::getFileNameSet()
-{
-    return this->fileNameSet;
-}
-void directory::getFileName(string inputDir)
-{
-    if(inputDir.empty())
-    {   
-        return;
-    }
-    struct stat statBuf;
-    mode_t modes;
-    lstat(inputDir.c_str(), &statBuf);
-    modes = statBuf.st_mode;
-    if(S_ISREG(modes))
-    {
-        fileNameSet.push_back(inputDir);
-        return;
-    }
-    if(S_ISDIR(modes))
-    {
-        struct dirent *dir;
-        DIR *dp;
-        if((dp = opendir(inputDir.c_str())) == NULL)
-        {
-            cerr<<"open directory error";
-            return;
-        }
-        while((dir = readdir(dp)) != NULL)
-        {
-            if(strcmp(".", dir->d_name) ==0 || strcmp("..", dir->d_name) == 0)
-            {
-                continue;
-            }
-            string subFileName = inputDir + "/" + dir->d_name;
-            lstat(subFileName.c_str(), &statBuf);
-            if(S_ISREG(statBuf.st_mode))
-            {
-                fileNameSet.push_back(subFileName);
-            }
-            if(S_ISDIR(statBuf.st_mode))
-            {
-                getFileName(subFileName);
-            }
-        }
-        closedir(dp);
-    }
+    Mat image = imread(image_path);
+    cv_bridge::CvImage cv_Image;
+    cv_Image.encoding = sensor_msgs::image_encodings::BGR8;
+    cv_Image.image = image;
+    return image;
 }
 
 
@@ -105,25 +31,68 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "fusion_from_pcd");
     ros::NodeHandle nh;
     double min_distance, max_distance;
-    std::string file_path, save_path, intrinsic_path, extrinsic_path;
+    std::string image_path, cloud_path, save_path;
+    std::string intrinsic_path, extrinsic_path;
     
+    // get parameters
     ros::param::get("intrinsic", intrinsic_path);
     ros::param::get("extrinsic", extrinsic_path);
     ros::param::get("min_distance", min_distance);
     ros::param::get("max_distance", max_distance);
-    ros::param::get("file_path", file_path);
+    ros::param::get("image_path", image_path);
+    ros::param::get("cloud_path", cloud_path);
     ros::param::get("save_path", save_path);
 
-    ROS_INFO_STREAM(file_path);
-    directory dir(file_path);
-    dir.getFileName(file_path);
-    vector<string> tmp;
-    tmp = dir.getFileNameSet();
-    ROS_INFO_STREAM(tmp.size());
-    // simple  c++ 11 new feature
-    for(const auto a : tmp)
+    // fusion method
+    LidarRGBfusion fusion_node;
+    fusion_node.set_intrinsic_path(intrinsic_path);
+    fusion_node.set_extrinsic_path(extrinsic_path);
+    fusion_node.set_min_distance(min_distance);
+    fusion_node.set_max_distance(max_distance);
+    fusion_node.get_parameters();
+
+    // read cloud file list
+    directory cloud_dir(cloud_path);
+    cloud_dir.getFileName(cloud_path);
+    vector<string> clouds = cloud_dir.getFileNameSet();
+    ROS_INFO_STREAM(clouds.size());
+
+    // read image file list
+    directory image_dir(image_path);
+    image_dir.getFileName(image_path);
+    vector<string> images = image_dir.getFileNameSet();
+    ROS_INFO_STREAM(clouds.size());
+    
+    // data process
+    const char separator = '/';
+    for (int i = 0; i < clouds.size();i++)
     {
-        cout<<a<<endl;
+        std::string val;
+        std::vector<string> outputArray;
+        std::stringstream streamData(clouds[i]);
+        while (std::getline(streamData, val, separator))
+        {
+            outputArray.push_back(val);
+        }
+        // load cloud
+        ROS_INFO_STREAM(clouds[i]);
+        ROS_INFO_STREAM(images[i]);
+        pcl::PointCloud<pcl::PointXYZI> cloud;
+        pcl::io::loadPCDFile(clouds[i], cloud);
+        // lodar image
+        Mat image = image_process(images[i]);
+        // fusion
+        fusion_node.set_rgb_image(image);
+        fusion_node.lidar_camera_registration(cloud);
+        fusion_node.filter();
+        pcl::PointCloud<pcl::PointXYZRGB> fused_cloud = fusion_node.return_point_cloud();
+        //
+        fused_cloud.height = fused_cloud.points.size();
+        fused_cloud.width = 1;
+        fused_cloud.is_dense = false;
+        string file_save_path = save_path + '/' + outputArray.back();
+        pcl::io::savePCDFile(file_save_path, fused_cloud);
+        ros::Duration(1.0).sleep();
     }
     return 0;
 }

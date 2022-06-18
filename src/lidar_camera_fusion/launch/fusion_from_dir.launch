@@ -7,9 +7,10 @@
     <param name="max_distance" value="2.5" />
 
     <!--change to your own image and lidar path !!!!!!!!!!!-->
-    <param name="file_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/monash" />
+    <param name="image_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/test_dataset/image" />
+    <param name="cloud_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/test_dataset/cloud" />
     <!--change to your own save path !!!!!!!!!!!-->
-    <param name="save_path" value="/home/hwkanrosbag/" />
+    <param name="save_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/test_dataset/fused_cloud" />
 
     <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lidar_camera_fusion)/rviz_cfg/sensor_fusion.rviz" /> -->
 
