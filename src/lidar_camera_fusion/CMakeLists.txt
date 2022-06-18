@@ -57,6 +57,9 @@ include_directories(
 add_executable(fusion_from_pcd src/fusion_from_pcd.cpp)
 target_link_libraries(fusion_from_pcd ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
+add_executable(fusion_from_dir src/fusion_from_dir.cpp)
+target_link_libraries(fusion_from_dir ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 #############
 ## Install ##
 #############

@@ -25,8 +25,8 @@ public:
 
     LidarRGBfusion()
     {
-        voxel_sor.setLeafSize(0.01f, 0.01f, 0.01f);
-        outlier_sor.setMeanK(20);
+        voxel_sor.setLeafSize(0.006f, 0.006f, 0.006f);
+        outlier_sor.setMeanK(10);
         outlier_sor.setStddevMulThresh(0.1);
     }
 

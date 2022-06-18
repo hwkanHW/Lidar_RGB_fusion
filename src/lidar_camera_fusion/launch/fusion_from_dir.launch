@@ -4,16 +4,12 @@
     <param name="intrinsic" value="$(find lidar_camera_fusion)/config/intrinsic_monash.txt" />
     <param name="extrinsic" value="$(find lidar_camera_fusion)/config/extrinsic_monash.txt" />
     <param name="min_distance" value="0.3" />
-    <param name="max_distance" value="2.0" />
-   
+    <param name="max_distance" value="2.5" />
+
     <!--change to your own image and lidar path !!!!!!!!!!!-->
-    <param name="image_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/monash/image25.png" />
-    <param name="pcd_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/monash/lidar25.pcd" />
-
+    <param name="file_path" value="/home/hwkan/rosbag/lidar_rgb_fusion/monash" />
     <!--change to your own save path !!!!!!!!!!!-->
-    <param name="save_path" value="/home/hwkan/1.pcd" />
-
-    <node name="fusion_from_pcd" pkg="lidar_camera_fusion" type="fusion_from_pcd" output="screen"/>
+    <param name="save_path" value="/home/hwkanrosbag/" />
 
     <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lidar_camera_fusion)/rviz_cfg/sensor_fusion.rviz" /> -->
 
