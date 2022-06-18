@@ -65,8 +65,10 @@ int main(int argc, char **argv)
     
     // data process
     const char separator = '/';
+    const char s_separator = '.';
     for (int i = 0; i < clouds.size();i++)
     {
+        //
         std::string val;
         std::vector<string> outputArray;
         std::stringstream streamData(clouds[i]);
@@ -74,13 +76,21 @@ int main(int argc, char **argv)
         {
             outputArray.push_back(val);
         }
+        //
+        std::vector<string> filename;
+        std::stringstream FILEDATA(outputArray.back());
+        while (std::getline(FILEDATA, val, s_separator))
+        {
+            filename.push_back(val);
+        }
         // load cloud
+        string image_name = image_path + "/" + filename[0] + ".png";
         ROS_INFO_STREAM(clouds[i]);
-        ROS_INFO_STREAM(images[i]);
+        ROS_INFO_STREAM(image_name);
         pcl::PointCloud<pcl::PointXYZI> cloud;
         pcl::io::loadPCDFile(clouds[i], cloud);
         // lodar image
-        Mat image = image_process(images[i]);
+        Mat image = image_process(image_name);
         // fusion
         fusion_node.set_rgb_image(image);
         fusion_node.lidar_camera_registration(cloud);
