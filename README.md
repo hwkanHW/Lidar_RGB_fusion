@@ -2,7 +2,7 @@
 
 ### Requirements
 ```bash
-pip install open3d==0.9 open3d-python==0.7 vtk mayavi
+pip install open3d==0.9 open3d-python==0.7 vtk mayavi pyside2(if python version >= 3.8)
 ```
 
 ### Data Preprocessing
